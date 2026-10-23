@@ -1,0 +1,43 @@
+﻿@using SharedTaskBoard.Services
+@inject TaskService TaskService
+@inject NavigationManager Nav
+
+<div class="card shadow-sm p-4 mb-4">
+    <h4>Добавить задачу</h4>
+
+    <div class="input-group">
+        <input class="form-control"
+               placeholder="Введите название задачи..."
+               @bind="title"
+               @bind:event="oninput" />
+
+        <button class="btn btn-primary" @onclick="AddTask">
+            Добавить
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <div class="text-danger mt-2">@errorMessage</div>
+    }
+</div>
+
+@code {
+    private string title = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private void AddTask()
+    {
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            errorMessage = "Введите название задачи!";
+            return;
+        }
+
+        TaskService.Add(title);
+        title = string.Empty;
+        errorMessage = string.Empty;
+
+        Nav.NavigateTo("/");
+    }
+}

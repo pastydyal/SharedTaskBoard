@@ -1,0 +1,47 @@
+﻿@page "/task/{id:guid}"
+@using SharedTaskBoard.Models
+@using SharedTaskBoard.Services
+@inject TaskService TaskService
+
+<PageTitle>Подробности задачи</PageTitle>
+
+<div class="container py-4">
+    <a href="/" class="btn btn-outline-secondary mb-4">
+        ← Назад к списку
+    </a>
+
+    @if (task is null)
+    {
+        <div class="alert alert-warning">
+            Задача не найдена.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm p-4">
+            <h2>@task.Title</h2>
+
+            <p>
+                <strong>Статус:</strong>
+                @(task.IsCompleted ? "Выполнена" : "Не выполнена")
+            </p>
+
+            <p>
+                <strong>Дата создания:</strong>
+                @task.CreatedAt.ToString("dd.MM.yyyy HH:mm:ss")
+            </p>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Guid id { get; set; }
+
+    private TaskItem? task;
+
+    protected override void OnParametersSet()
+    {
+        task = TaskService.GetById(id);
+    }
+}

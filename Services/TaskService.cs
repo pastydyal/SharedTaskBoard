@@ -9,50 +9,58 @@ public class TaskService
 
     public event Action? OnChange;
 
+    // Возвращает только неудалённые задачи
     public List<TaskItem> GetAll()
     {
-        return _tasks;
+        return _tasks
+            .Where(task => !task.IsDeleted)
+            .ToList();
     }
 
-    public TaskItem? GetById(Guid id)
+    // Количество неудалённых задач
+    public int GetCount()
     {
-        return _tasks.FirstOrDefault(task => task.Id == id);
+        return _tasks.Count(task => !task.IsDeleted);
     }
 
-    public void Add(string title)
+    // Добавление задачи
+    public void Add(TaskItem task)
     {
-        if (string.IsNullOrWhiteSpace(title))
-            return;
-
-        _tasks.Add(new TaskItem
-        {
-            Title = title.Trim(),
-            CreatedAt = DateTime.Now
-        });
-
+        _tasks.Add(task);
         NotifyStateChanged();
     }
 
+    // Изменение статуса выполнения
     public void Toggle(Guid id)
     {
-        var task = GetById(id);
+        var task = _tasks.FirstOrDefault(task =>
+            task.Id == id && !task.IsDeleted);
 
-        if (task is null)
-            return;
-
-        task.IsCompleted = !task.IsCompleted;
-        NotifyStateChanged();
+        if (task is not null)
+        {
+            task.IsCompleted = !task.IsCompleted;
+            NotifyStateChanged();
+        }
     }
 
+    // Мягкое удаление задачи
     public void Delete(Guid id)
     {
-        var task = GetById(id);
+        var task = _tasks.FirstOrDefault(task =>
+            task.Id == id && !task.IsDeleted);
 
-        if (task is null)
-            return;
+        if (task is not null)
+        {
+            task.IsDeleted = true;
+            NotifyStateChanged();
+        }
+    }
 
-        _tasks.Remove(task);
-        NotifyStateChanged();
+    // Получение задачи по ID
+    public TaskItem? GetById(Guid id)
+    {
+        return _tasks.FirstOrDefault(task =>
+            task.Id == id && !task.IsDeleted);
     }
 
     private void NotifyStateChanged()

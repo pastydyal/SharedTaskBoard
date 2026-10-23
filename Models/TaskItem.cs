@@ -9,5 +9,7 @@ public class TaskItem
 
     public bool IsCompleted { get; set; }
 
+    public bool IsDeleted { get; set; } = false;
+
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 }

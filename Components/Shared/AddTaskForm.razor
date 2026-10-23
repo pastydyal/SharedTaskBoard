@@ -1,6 +1,6 @@
-﻿@using SharedTaskBoard.Services
+﻿@using SharedTaskBoard.Models
+@using SharedTaskBoard.Services
 @inject TaskService TaskService
-@inject NavigationManager Nav
 
 <div class="card shadow-sm p-4 mb-4">
     <h4>Добавить задачу</h4>
@@ -34,10 +34,15 @@
             return;
         }
 
-        TaskService.Add(title);
+        var task = new TaskItem
+            {
+                Title = title.Trim(),
+                CreatedAt = DateTime.Now
+            };
+
+        TaskService.Add(task);
+
         title = string.Empty;
         errorMessage = string.Empty;
-
-        Nav.NavigateTo("/");
     }
 }

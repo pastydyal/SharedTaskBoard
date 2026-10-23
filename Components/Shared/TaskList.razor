@@ -6,9 +6,21 @@
 <div class="card shadow-sm p-4">
     <h4>Список задач</h4>
 
-    @if (TaskService.GetAll().Count == 0)
+    <div class="mb-3">
+        <label for="taskFilter" class="form-label">Фильтр задач</label>
+        <select id="taskFilter" class="form-select"
+                @bind="SelectedFilter">
+            <option value="all">Все задачи</option>
+            <option value="completed">Только выполненные</option>
+            <option value="active">Только невыполненные</option>
+        </select>
+    </div>
+
+    @if (FilteredTasks.Count == 0)
     {
-        <p class="text-muted">Пока задач нет. Добавьте первую!</p>
+        <p class="text-muted">
+            @EmptyMessage
+        </p>
     }
     else
     {
@@ -22,7 +34,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var task in TaskService.GetAll())
+                @foreach (var task in FilteredTasks)
                 {
                     <tr @key="task.Id">
                         <td>
@@ -64,6 +76,30 @@
 </div>
 
 @code {
+    private string SelectedFilter { get; set; } = "all";
+
+    private List<TaskItem> FilteredTasks
+    {
+        get
+        {
+            var tasks = TaskService.GetAll();
+
+            return SelectedFilter switch
+            {
+                "completed" => tasks.Where(task => task.IsCompleted).ToList(),
+                "active" => tasks.Where(task => !task.IsCompleted).ToList(),
+                _ => tasks
+            };
+        }
+    }
+
+    private string EmptyMessage => SelectedFilter switch
+    {
+        "completed" => "Выполненных задач пока нет.",
+        "active" => "Невыполненных задач нет.",
+        _ => "Пока задач нет. Добавьте первую!"
+    };
+
     protected override void OnInitialized()
     {
         TaskService.OnChange += HandleChange;
